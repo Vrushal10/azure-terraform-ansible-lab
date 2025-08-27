@@ -1,0 +1,68 @@
+---
+- hosts: ubuntu-dev-1
+  become: yes
+  #gather_facts: no
+  tasks:
+     # Controlling Change Detection Using `changed_when`
+    - name: Run a command without marking as changed. Updating packages in ubuntu
+      command: sudo apt update -y
+      changed_when: false  # Ensures task runs but doesn't count as changed. Some commands always report a "change" even when nothing actually changes to avoid trigger handlers unnecessarily.
+
+
+    # Conditional Execution Using `when`
+    - name: Install nginx only on Ubuntu
+      package:
+        name: nginx
+        state: present
+      when: ansible_os_family == "Debian"
+
+
+    # Handling Failed Tasks Using `failed_when`
+    - name: Check if nginx service is running
+      command: systemctl status nginx
+      register: service_check
+      ignore_errors: yes
+      failed_when: "'inactive' in service_check.stdout"  # Mark task as failed if service is inactive
+    
+    - name: Print the stdout result
+      debug:
+        msg:
+          - "Service status: {{ service_check.stdout }}"
+          - "Error (if any): {{ service_check.stderr }}"
+          - "Return code: {{ service_check.rc }}"
+          - "Task changed: {{ service_check.changed }}" 
+
+
+    # Using Multiple Conditions with `when`
+    - name: Install MariaDB only on CentOS and if the database directory doesn't exist
+      yum:
+        name: mariadb-server
+        state: present
+      when:
+        - ansible_os_family == "RedHat"
+        - not ansible_facts['mounts'] | selectattr('mount', 'equalto', '/var/lib/mysql')
+
+    # Loop with Conditional Execution
+    - name: Install selected packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - nginx
+        - php-mysql
+        - mysql-server
+        - apache2
+      when:
+        - ansible_os_family == "Debian"
+        - not (service_status.stdout is search("Active: active"))
+  
+    ## Combining Conditions       
+    - name: Install packages based on multiple conditions
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - httpd
+        - nginx
+      when: ansible_os_family == "RedHat" and ansible_distribution_major_version | int >= 7
+

@@ -1,0 +1,19 @@
+- hosts: localhost
+  vars:
+    #app_port: 8080  #  Optional, if not defined default 8080 will be accepted.
+    numbers: [3, 1, 2, 3, 2, 5]
+    users: ['frank', 'alice', 'daniel', 'bob', 'charlie']  
+    message: Hello Ansible Learners. Hope you are enjoying the learning!!  
+  tasks:
+    - name: Print port value
+      debug:
+        msg: "Application runs on port {{ app_port | default(9090) }}"
+    - name: Print upper/lower case text
+      debug:
+        msg: "{{ message | upper }}"
+    - name: Append domain to each user
+      debug:
+        msg: "{{ users |  sort | map('regex_replace', '^(.*)$', '\\1@example.com') | list  }}"
+    - name: Sort and remove duplicates
+      debug:
+        msg: "{{ numbers | unique | sort }}"

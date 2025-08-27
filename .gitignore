@@ -1,0 +1,24 @@
+# --- Ansible ---
+*.retry
+
+# --- SSH keys ---
+terraform/sandbox
+*.pem
+*.key
+*.private
+
+# --- Terraform ---
+.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.*
+terraform/.terraform.tfstate.lock.info
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# --- Python / local env ---
+venv-azure/
+.env
+__pycache__/

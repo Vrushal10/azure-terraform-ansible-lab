@@ -1,0 +1,23 @@
+- hosts: ubuntu-dev-1
+  become: yes
+  gather_facts: true
+  tasks:
+    - name: Stop Nginx
+      service:
+        name: nginx
+        state: stopped # If Apache already installed, nothing changes, so the handler is not triggered. If newly installed, it triggers the Restart Apache handler.
+
+    
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: latest
+      notify:        # Will notify if anything changed in the task. 
+        - Restart Apache    
+
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2    ## Can also use variables like "{{ service_name}}"
+        state: restarted
+      when: ansible_os_family == "Debian"  #  Runs only if system is Debian-based
