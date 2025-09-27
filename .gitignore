@@ -6,6 +6,7 @@ terraform/sandbox
 *.pem
 *.key
 *.private
+sandbox.pub
 
 # --- Terraform ---
 .terraform/
